@@ -12,10 +12,6 @@ export class TextService {
     return res;
   }
 
-  findAll() {
-    return `This action returns all text`;
-  }
-
   findOne(id: number) {
     return `This action returns a #${id} text`;
   }

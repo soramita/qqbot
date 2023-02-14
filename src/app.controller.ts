@@ -1,14 +1,16 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { group } from './config/includes';
 import { TextService } from './modules/text/text.service';
-import { MessageType } from '../dist/modules/message/message.type';
-import { PostNoticeType } from './types/data.type';
 import { IGroupNotify } from './types/notice.type';
 import { IGroupMessage } from './types/message.type';
+import { ImgService } from './modules/img/img.service';
 
 @Controller()
 export class AppController {
-  constructor(private readonly textService: TextService) {}
+  constructor(
+    private readonly textService: TextService,
+    private readonly imgService: ImgService,
+  ) {}
   @Post('/')
   main(@Body() response: any) {
     if (!response.meta_event_type) {
@@ -16,10 +18,14 @@ export class AppController {
         switch (response.post_type) {
           case 'message':
             const message = response as IGroupMessage;
-            if (message.message === '嘤嘤嘤') {
+            if (message.message.includes('&#91;色图time&#93;')) {
+              this.imgService.create(message);
+            }
+            if (message.message.includes('色图格式')) {
               this.textService.create({
+                message:
+                  '[色图time] 作者ID123 标签[xx，xx](作者和标签可以不带)',
                 group_id: message.group_id,
-                message: '咕咕咕',
               });
             }
             return;

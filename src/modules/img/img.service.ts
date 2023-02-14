@@ -1,10 +1,44 @@
 import { Injectable } from '@nestjs/common';
-import { CreateImgDto } from './dto/create-img.dto';
+import axios from 'axios';
+import getLoliconApi, { LoliconApi } from 'src/utils/loliconApi';
+import { CreateLoliconImgDto } from './dto/create-img.dto';
 
 @Injectable()
 export class ImgService {
-  create(createImgDto: CreateImgDto) {
-    return 'This action adds a new img';
+  async create(createLoliconImgDto: CreateLoliconImgDto) {
+    // '&#91;色图time&#93; 123 &#91;ll，gg&#93;'
+    const newData = createLoliconImgDto.message
+      .replace(/\&#91;|&#93;/g, '')
+      .split(' ');
+    let uid;
+    let tag;
+    newData.forEach((item) => {
+      if (item.includes('作者ID')) {
+        uid = item.replace(/\作者ID/g, '');
+      }
+      if (item.includes('标签')) {
+        tag = item.replace(/\标签/g, '').split('，');
+      }
+    });
+    const loliconInfo: LoliconApi = {
+      r18: 0,
+      num: 1,
+      uid,
+      tag,
+    };
+
+    const res = await getLoliconApi(loliconInfo);
+    const { data } = await axios.post(
+      `${process.env.BASE_URL}/send_group_msg`,
+      {
+        group_id: createLoliconImgDto.group_id,
+        message:
+          res.data.length !== 0
+            ? `[CQ:image,file=${res.data[0].urls.original}]`
+            : '没有找到相关图片',
+      },
+    );
+    return data;
   }
 
   findAll() {

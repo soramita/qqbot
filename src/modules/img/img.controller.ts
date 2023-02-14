@@ -8,16 +8,10 @@ import {
   Delete,
 } from '@nestjs/common';
 import { ImgService } from './img.service';
-import { CreateImgDto } from './dto/create-img.dto';
 
 @Controller('img')
 export class ImgController {
   constructor(private readonly imgService: ImgService) {}
-
-  @Post()
-  create(@Body() createImgDto: CreateImgDto) {
-    return this.imgService.create(createImgDto);
-  }
 
   @Get()
   findAll() {
