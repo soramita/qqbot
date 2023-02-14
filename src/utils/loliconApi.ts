@@ -38,10 +38,9 @@ const getLoliconApi = async (params?: LoliconApi) => {
   const tags = params.tag?.map((item) => {
     return `tag=${item}`;
   });
-
   const res = await axios.get<LoliconApiResult>(
     url +
-      `?r18=0&num=1${params.uid ? '&uid=' + params.uid : ''}&${
+      `?r18=${params.r18}&num=1${params.uid ? '&uid=' + params.uid : ''}&${
         tags ? tags.join('&') : ''
       }`,
   );

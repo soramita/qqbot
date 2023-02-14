@@ -38,6 +38,15 @@ export class ImgService {
             : '没有找到相关图片',
       },
     );
+    if (data.status == 'failed') {
+      await axios.post(`${process.env.BASE_URL}/send_group_msg`, {
+        group_id: createLoliconImgDto.group_id,
+        message:
+          res.data.length !== 0
+            ? `该图片已被tx吃掉，请访问${res.data[0].urls.original}`
+            : '没有找到相关图片',
+      });
+    }
     return data;
   }
 
