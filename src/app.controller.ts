@@ -19,14 +19,17 @@ export class AppController {
           case 'message':
             const message = response as IGroupMessage;
             if (message.message.includes('&#91;色图time&#93;')) {
-              this.imgService.create(message);
+              if (message.message.includes('数量')) {
+                this.imgService.createGroupForwardImg(message);
+              } else {
+                this.imgService.createGroupImg(message);
+              }
             }
             if (message.message.includes('色图格式')) {
-              this.textService.create({
-                message:
-                  '[色图time] 作者ID123 标签[xx，xx](作者和标签可以不带)',
-                group_id: message.group_id,
-              });
+              this.textService.createGroupText(message);
+            }
+            if (message.message.includes('&#91;创建合并转发&#93;')) {
+              this.textService.createGroupForwardText(message);
             }
             return;
           case 'notice':

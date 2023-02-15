@@ -8,14 +8,14 @@ import {
 } from './data.type';
 
 abstract class MessageType {
-  message_type: PostMessageType;
-  sub_type: PostMessageSubType;
-  message_id: number;
-  user_id: number;
-  message: any;
-  raw_message: string;
-  font: number;
-  sender: PostMessageMessageSender;
+  message_type?: PostMessageType;
+  sub_type?: PostMessageSubType;
+  message_id?: number;
+  user_id?: number;
+  message?: any;
+  raw_message?: string;
+  font?: number;
+  sender?: PostMessageMessageSender;
 }
 
 /**
@@ -33,7 +33,7 @@ export class IPrivateMessage extends MessageType {
  */
 export class IGroupMessage extends MessageType {
   group_id: number;
-  anonymous: {
+  anonymous?: {
     id: number;
     name: string;
     flag: string;

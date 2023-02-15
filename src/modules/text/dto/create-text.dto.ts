@@ -1,5 +1,4 @@
-export class CreateGroupTextDto {
-  group_id: number;
-  message: string;
-  auto_escape?: boolean;
-}
+import { IGroupMessage } from '../../../types/message.type';
+
+export class CreateGroupTextDto extends IGroupMessage {}
+export class CreateGroupForwardTextDto extends IGroupMessage {}

@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { CreateLoliconImgDto } from '../modules/img/dto/create-img.dto';
 
 export type LoliconApi = {
   r18?: 0 | 1 | 2;
@@ -34,15 +35,41 @@ type LoliconApiResult = {
   }>;
 };
 const url = 'https://api.lolicon.app/setu/v2';
-const getLoliconApi = async (params?: LoliconApi) => {
-  const tags = params.tag?.map((item) => {
+const getLoliconApi = async (createLoliconImgDto: CreateLoliconImgDto) => {
+  const newData = createLoliconImgDto.message
+    .replace(/\&#91;|&#93;/g, '')
+    .split(' ');
+  let uid;
+  let tag;
+  let num;
+  newData.forEach((item) => {
+    if (item.includes('作者ID')) {
+      uid = item.replace(/\作者ID/g, '');
+    }
+    if (item.includes('标签')) {
+      tag = item.replace(/\标签/g, '').split('，');
+    }
+    if (item.includes('数量')) {
+      num = item.replace(/\数量/g, '');
+      if (num == '') {
+        num = 1;
+      }
+    }
+  });
+  const loliconInfo: LoliconApi = {
+    r18: 0,
+    num,
+    uid,
+    tag,
+  };
+  const tags = loliconInfo.tag?.map((item) => {
     return `tag=${item}`;
   });
   const res = await axios.get<LoliconApiResult>(
     url +
-      `?r18=${params.r18}&num=1${params.uid ? '&uid=' + params.uid : ''}&${
-        tags ? tags.join('&') : ''
-      }`,
+      `?r18=${loliconInfo.r18}&num=${loliconInfo.num}&${
+        loliconInfo.uid ? '&uid=' + loliconInfo.uid : ''
+      }&${tags ? tags.join('&') : ''}`,
   );
   return res.data;
 };

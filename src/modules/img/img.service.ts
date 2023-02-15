@@ -2,34 +2,62 @@ import { Injectable } from '@nestjs/common';
 import axios from 'axios';
 import getLoliconApi, { LoliconApi } from 'src/utils/loliconApi';
 import { CreateLoliconImgDto } from './dto/create-img.dto';
+import { GroupEnum } from '../../types/enum.type';
 
 @Injectable()
 export class ImgService {
-  async create(createLoliconImgDto: CreateLoliconImgDto) {
-    // '&#91;色图time&#93; 123 &#91;ll，gg&#93;'
-    const newData = createLoliconImgDto.message
-      .replace(/\&#91;|&#93;/g, '')
-      .split(' ');
-    let uid;
-    let tag;
-    newData.forEach((item) => {
-      if (item.includes('作者ID')) {
-        uid = item.replace(/\作者ID/g, '');
+  async createGroupForwardImg(createLoliconImgDto: CreateLoliconImgDto) {
+    const res = await getLoliconApi(createLoliconImgDto);
+    if (res.data.length != 0) {
+      const nodeList = res.data.map((item) => {
+        return {
+          type: 'node',
+          data: {
+            name: '咕咕咕',
+            uin: '1037768230',
+            content: `[CQ:image,file=${item.urls.original}]`,
+          },
+        };
+      });
+      const { data } = await axios.post(
+        `${process.env.BASE_URL}${GroupEnum.SendGroupForwardMsg}`,
+        {
+          group_id: createLoliconImgDto.group_id,
+          messages: nodeList,
+        },
+      );
+      if (data.status == 'failed') {
+        const nodeList = res.data.map((item) => {
+          return {
+            type: 'node',
+            data: {
+              name: '咕咕咕',
+              uin: '1037768230',
+              content: item.urls.original,
+            },
+          };
+        });
+        await axios.post(
+          `${process.env.BASE_URL}${GroupEnum.SendGroupForwardMsg}`,
+          {
+            group_id: createLoliconImgDto.group_id,
+            messages: nodeList,
+          },
+        );
       }
-      if (item.includes('标签')) {
-        tag = item.replace(/\标签/g, '').split('，');
-      }
-    });
-    const loliconInfo: LoliconApi = {
-      r18: 0,
-      num: 1,
-      uid,
-      tag,
-    };
+    } else {
+      await axios.post(`${process.env.BASE_URL}${GroupEnum.SendGroupMsg}`, {
+        group_id: createLoliconImgDto.group_id,
+        message: '没有找到相关图片',
+      });
+    }
+    return 'ok';
+  }
 
-    const res = await getLoliconApi(loliconInfo);
+  async createGroupImg(createLoliconImgDto: CreateLoliconImgDto) {
+    const res = await getLoliconApi(createLoliconImgDto);
     const { data } = await axios.post(
-      `${process.env.BASE_URL}/send_group_msg`,
+      `${process.env.BASE_URL}${GroupEnum.SendGroupMsg}`,
       {
         group_id: createLoliconImgDto.group_id,
         message:
@@ -39,7 +67,7 @@ export class ImgService {
       },
     );
     if (data.status == 'failed') {
-      await axios.post(`${process.env.BASE_URL}/send_group_msg`, {
+      await axios.post(`${process.env.BASE_URL}${GroupEnum.SendGroupMsg}`, {
         group_id: createLoliconImgDto.group_id,
         message:
           res.data.length !== 0
@@ -48,10 +76,6 @@ export class ImgService {
       });
     }
     return data;
-  }
-
-  findAll() {
-    return `This action returns all img`;
   }
 
   findOne(id: number) {

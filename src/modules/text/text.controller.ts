@@ -8,6 +8,6 @@ export class TextController {
 
   @Post('/send_text_message')
   create(@Body() createGroupTextDto: CreateGroupTextDto) {
-    return this.textService.create(createGroupTextDto);
+    return this.textService.createGroupText(createGroupTextDto);
   }
 }

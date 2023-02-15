@@ -13,11 +13,6 @@ import { ImgService } from './img.service';
 export class ImgController {
   constructor(private readonly imgService: ImgService) {}
 
-  @Get()
-  findAll() {
-    return this.imgService.findAll();
-  }
-
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.imgService.findOne(+id);
